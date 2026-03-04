@@ -109,7 +109,7 @@ server_checkbox = tk.Checkbutton(
 server_checkbox.pack(pady=5)
 
 # Bind the checkbox change to update the labels
-is_server_var.trace("w", update_labels)
+is_server_var.trace("w", update_labels) # W labels ( insert W speed image here )
 
 tk.Label(root, text="Minecraft.Client path INCLUDING THE EXE:", bg="#000000", fg="white").pack(pady=(10, 0))
 path_entry = tk.Entry(root, width=67) # SIX SEVEEEEEN ( god kill me )
