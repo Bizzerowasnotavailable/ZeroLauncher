@@ -100,10 +100,10 @@ if logo:
     logo_label = tk.Label(root, image=logo, bg="#000000")
     logo_label.pack(pady=10)
 
-name_label = tk.Label(root, text="Player name:", bg="#000000", fg="white")
+name_label = tk.Label(root, text="Player name:", bg="#000000", fg="cyan")
 name_label.pack(pady=(10, 0))
 
-name_entry = tk.Entry(root, width=30)
+name_entry = tk.Entry(root, width=17)
 name_entry.pack()
 
 server_label = tk.Label(root, text="online server IP", bg="#000000", fg="white")
