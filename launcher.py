@@ -11,12 +11,13 @@ def launch_minecraft():
     server = server_entry.get().strip()
     minecraft_path = path_entry.get().strip()
 
+    # checks every textfield and freaks out if some stuff isn't specified
     if not name:
         messagebox.showerror("Error", "Name is required.")
         return
 
     if not minecraft_path:
-        messagebox.showerror("Error", "Minecraft.Client path is required.")
+        messagebox.showerror("Error", "Minecraft.Client path is required, make sure you add the exe to the path")
         return
 
     if not os.path.exists(minecraft_path):
@@ -28,7 +29,7 @@ def launch_minecraft():
     # Server mode logic
     if is_server_var.get():
         args.append("-server")
-        if server:  # Only add server IP if it's specified
+        if server:  
             args.extend(["-ip", server])
     elif server:
         args.extend(["-ip", server])
@@ -37,6 +38,18 @@ def launch_minecraft():
         subprocess.Popen(args)
     except Exception as e:
         messagebox.showerror("Launch Error", str(e))
+
+# change textbox names if the launcher is set to server mode
+def update_labels(*args):
+    if is_server_var.get():
+        name_label.config(text="Server display name (not world name):")
+        server_label.config(text="Custom IP (leave blank for default):")
+    else:
+        name_label.config(text="Player name:")
+        server_label.config(text="online server IP")
+
+# graphics stuff
+
 
 root = tk.Tk()
 root.title("LCE ZeroLauncher")
@@ -62,7 +75,8 @@ except Exception:
         img_data = img_data.resize((819, 164))
         logo = ImageTk.PhotoImage(img_data)
     except Exception:
-        logo = None  # if there's ALSO no local file, try the nuclear option, aka don't show any logo at all
+        logo = None  # if there's ALSO no local file, try the nuclear option, aka don't show any logo at all,
+        # thinking about it, I could add a funky ahh comic sans logo when nothing else works :3
 
 # creating label ONLY if logo exists
 if logo:
@@ -75,12 +89,8 @@ name_label.pack(pady=(10, 0))
 name_entry = tk.Entry(root, width=30)
 name_entry.pack()
 
-tk.Label(
-    root,
-    text="Server IP (leave blank if you don't want to play online)",
-    bg="#000000",
-    fg="white"
-).pack(pady=(10, 0))
+server_label = tk.Label(root, text="online server IP", bg="#000000", fg="white")
+server_label.pack(pady=(10, 0))
 
 server_entry = tk.Entry(root, width=30)
 server_entry.pack()
@@ -98,8 +108,11 @@ server_checkbox = tk.Checkbutton(
 )
 server_checkbox.pack(pady=5)
 
+# Bind the checkbox change to update the labels
+is_server_var.trace("w", update_labels)
+
 tk.Label(root, text="Minecraft.Client path INCLUDING THE EXE:", bg="#000000", fg="white").pack(pady=(10, 0))
-path_entry = tk.Entry(root, width=40)
+path_entry = tk.Entry(root, width=67) # SIX SEVEEEEEN ( god kill me )
 path_entry.pack()
 
 tk.Button(root, text="Launch LCE", command=launch_minecraft, width=40, height=3).pack(pady=20)
