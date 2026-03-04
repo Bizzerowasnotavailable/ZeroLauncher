@@ -6,6 +6,20 @@ import requests
 from PIL import Image, ImageTk
 from io import BytesIO
 
+# loading settings to file ( i swear to god if this doesn't work )
+def load_settings():
+    if os.path.exists("zerolauncher.txt"):
+        with open("zerolauncher.txt", "r") as f:
+            lines = f.readlines()
+            if len(lines) >= 2:
+                name_entry.insert(0, lines[0].strip())
+                path_entry.insert(0, lines[1].strip())
+
+#save settings to file so that you don't need to re-add them everytime
+def save_settings(name, minecraft_path):
+    with open("zerolauncher.txt", "w") as f:
+        f.write(f"{name}\n{minecraft_path}\n")
+
 def launch_minecraft():
     name = name_entry.get().strip()
     server = server_entry.get().strip()
@@ -23,6 +37,9 @@ def launch_minecraft():
     if not os.path.exists(minecraft_path):
         messagebox.showerror("Error", f"{minecraft_path} not found.")
         return
+
+    # Save the settings to the file
+    save_settings(name, minecraft_path)
 
     args = [minecraft_path, "-name", name]
 
@@ -49,8 +66,6 @@ def update_labels(*args):
         server_label.config(text="online server IP")
 
 # graphics stuff
-
-
 root = tk.Tk()
 root.title("LCE ZeroLauncher")
 root.geometry("800x500")
@@ -116,5 +131,8 @@ path_entry = tk.Entry(root, width=67) # SIX SEVEEEEEN ( god kill me )
 path_entry.pack()
 
 tk.Button(root, text="Launch LCE", command=launch_minecraft, width=40, height=3).pack(pady=20)
+
+# Load the saved settings when the program starts
+load_settings()
 
 root.mainloop()
