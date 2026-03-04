@@ -5,6 +5,7 @@ import os
 import requests
 from PIL import Image, ImageTk
 from io import BytesIO
+import webbrowser
 
 # loading settings to file ( i swear to god if this doesn't work )
 def load_settings():
@@ -15,7 +16,7 @@ def load_settings():
                 name_entry.insert(0, lines[0].strip())
                 path_entry.insert(0, lines[1].strip())
 
-#save settings to file so that you don't need to re-add them everytime
+# save settings to file so that you don't need to re-add them every time
 def save_settings(name, minecraft_path):
     with open("zerolauncher.txt", "w") as f:
         f.write(f"{name}\n{minecraft_path}\n")
@@ -68,7 +69,7 @@ def update_labels(*args):
 # graphics stuff
 root = tk.Tk()
 root.title("LCE ZeroLauncher")
-root.geometry("800x500")
+root.geometry("800x600")
 root.resizable(False, False)
 root.configure(bg="#000000")
 
@@ -87,7 +88,8 @@ except Exception:
     # if there's no wifi, try using the local file
     try:
         img_data = Image.open("logo.png")
-        img_data = img_data.resize((819, 164))
+        img_data = img_data.resize((819, 164)) # if someone knows how to make it so that the image size can be edited at the same time for both the
+                                                # online and offline logos, please edit the code accordingly
         logo = ImageTk.PhotoImage(img_data)
     except Exception:
         logo = None  # if there's ALSO no local file, try the nuclear option, aka don't show any logo at all,
@@ -123,7 +125,6 @@ server_checkbox = tk.Checkbutton(
 )
 server_checkbox.pack(pady=5)
 
-# Bind the checkbox change to update the labels
 is_server_var.trace("w", update_labels) # W labels ( insert W speed image here )
 
 tk.Label(root, text="Minecraft.Client path INCLUDING THE EXE:", bg="#000000", fg="white").pack(pady=(10, 0))
@@ -131,6 +132,15 @@ path_entry = tk.Entry(root, width=67) # SIX SEVEEEEEN ( god kill me )
 path_entry.pack()
 
 tk.Button(root, text="Launch LCE", command=launch_minecraft, width=40, height=3).pack(pady=20)
+
+def open_url(url):
+    webbrowser.open(url)
+
+download_button = tk.Button(root, text="Download LCE", command=lambda: open_url("https://github.com/smartcmd/MinecraftConsoles/releases/download/nightly/LCEWindows64.zip"), width=40, height=3)
+download_button.pack(side='left', padx=10, pady=20)
+
+star_repo_button = tk.Button(root, text="Star the Repo", command=lambda: open_url("https://github.com/Bizzerowasnotavailable/ZeroLauncher"), width=40, height=3)
+star_repo_button.pack(side='right', padx=10, pady=20)
 
 # Load the saved settings when the program starts
 load_settings()
