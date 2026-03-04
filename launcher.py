@@ -6,8 +6,9 @@ import requests
 from PIL import Image, ImageTk
 from io import BytesIO
 import webbrowser
+import re
 
-# loading settings to file ( i swear to god if this doesn't work )
+# loading settings to file
 def load_settings():
     if os.path.exists("zerolauncher.txt"):
         with open("zerolauncher.txt", "r") as f:
@@ -16,21 +17,37 @@ def load_settings():
                 name_entry.insert(0, lines[0].strip())
                 path_entry.insert(0, lines[1].strip())
 
-# save settings to file so that you don't need to re-add them every time
+# save settings to file
 def save_settings(name, minecraft_path):
     with open("zerolauncher.txt", "w") as f:
         f.write(f"{name}\n{minecraft_path}\n")
+
+def is_ipv4(ip):
+    """Validate the IPv4 address."""
+    regex = r"^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+    return re.match(regex, ip) is not None
 
 def launch_minecraft():
     name = name_entry.get().strip()
     server = server_entry.get().strip()
     minecraft_path = path_entry.get().strip()
 
-    # checks every textfield and freaks out if some stuff isn't specified
-    if not name:
-        messagebox.showerror("Error", "Name is required.")
+    # Check name length ( must be <= 16 characters cuz that's the game's limit anyway )
+    if len(name) > 16:
+        messagebox.showerror("Error", "Player name cannot be more than 16 characters.")
         return
 
+    # Check if the server name length is > 16 characters (only if server mode is enabled)
+    if is_server_var.get() and len(server) > 16:
+        messagebox.showerror("Error", "Server name cannot be more than 16 characters.")
+        return
+
+    # Validate IP address (if provided)
+    if server and not is_ipv4(server):
+        messagebox.showerror("Error", "Please enter a valid IPv4 address for the server.")
+        return
+
+    # Validate Minecraft path
     if not minecraft_path:
         messagebox.showerror("Error", "Minecraft.Client path is required, make sure you add the exe to the path")
         return
@@ -47,7 +64,7 @@ def launch_minecraft():
     # Server mode logic
     if is_server_var.get():
         args.append("-server")
-        if server:  
+        if server:
             args.extend(["-ip", server])
     elif server:
         args.extend(["-ip", server])
@@ -88,12 +105,11 @@ except Exception:
     # if there's no wifi, try using the local file
     try:
         img_data = Image.open("logo.png")
-        img_data = img_data.resize((819, 164)) # if someone knows how to make it so that the image size can be edited at the same time for both the
-                                                # online and offline logos, please edit the code accordingly
+        img_data = img_data.resize((819, 164))
         logo = ImageTk.PhotoImage(img_data)
+        # if there's no local file, just don't do anything
     except Exception:
-        logo = None  # if there's ALSO no local file, try the nuclear option, aka don't show any logo at all,
-        # thinking about it, I could add a funky ahh comic sans logo when nothing else works :3
+        logo = None
 
 # creating label ONLY if logo exists
 if logo:
@@ -125,10 +141,10 @@ server_checkbox = tk.Checkbutton(
 )
 server_checkbox.pack(pady=5)
 
-is_server_var.trace("w", update_labels) # W labels ( insert W speed image here )
+is_server_var.trace("w", update_labels)
 
 tk.Label(root, text="Minecraft.Client path INCLUDING THE EXE:", bg="#000000", fg="white").pack(pady=(10, 0))
-path_entry = tk.Entry(root, width=67) # SIX SEVEEEEEN ( god kill me )
+path_entry = tk.Entry(root, width=67)
 path_entry.pack()
 
 tk.Button(root, text="Launch LCE", command=launch_minecraft, width=40, height=3).pack(pady=20)
@@ -142,7 +158,7 @@ download_button.pack(side='left', padx=10, pady=20)
 star_repo_button = tk.Button(root, text="Star the Repo", command=lambda: open_url("https://github.com/Bizzerowasnotavailable/ZeroLauncher"), width=40, height=3)
 star_repo_button.pack(side='right', padx=10, pady=20)
 
-# Load the saved settings when the program starts
-load_settings()
+
+load_settings() # loads settings....
 
 root.mainloop()
