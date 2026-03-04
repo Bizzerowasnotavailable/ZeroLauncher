@@ -6,14 +6,6 @@ import requests
 from PIL import Image, ImageTk
 from io import BytesIO
 
-def toggle_server_mode():
-    if is_server_var.get():
-        server_entry.config(state="disabled", disabledbackground="#000000")
-        name_label.config(text="Server name (not world):")
-    else:
-        server_entry.config(state="normal")
-        name_label.config(text="Player name:")
-
 def launch_minecraft():
     name = name_entry.get().strip()
     server = server_entry.get().strip()
@@ -33,8 +25,11 @@ def launch_minecraft():
 
     args = [minecraft_path, "-name", name]
 
+    # Server mode logic
     if is_server_var.get():
         args.append("-server")
+        if server:  # Only add server IP if it's specified
+            args.extend(["-ip", server])
     elif server:
         args.extend(["-ip", server])
 
@@ -69,11 +64,10 @@ except Exception:
     except Exception:
         logo = None  # if there's ALSO no local file, try the nuclear option, aka don't show any logo at all
 
-# creating lable ONLY if logo exists
+# creating label ONLY if logo exists
 if logo:
     logo_label = tk.Label(root, image=logo, bg="#000000")
     logo_label.pack(pady=10)
-    
 
 name_label = tk.Label(root, text="Player name:", bg="#000000", fg="white")
 name_label.pack(pady=(10, 0))
@@ -96,7 +90,6 @@ server_checkbox = tk.Checkbutton(
     root,
     text="Server mode",
     variable=is_server_var,
-    command=toggle_server_mode,
     bg="#000000",
     fg="yellow",
     selectcolor="#000000",
@@ -105,11 +98,10 @@ server_checkbox = tk.Checkbutton(
 )
 server_checkbox.pack(pady=5)
 
-tk.Label(root, text="Minecraft.Client path:", bg="#000000", fg="white").pack(pady=(10, 0))
+tk.Label(root, text="Minecraft.Client path INCLUDING THE EXE:", bg="#000000", fg="white").pack(pady=(10, 0))
 path_entry = tk.Entry(root, width=40)
 path_entry.pack()
 
 tk.Button(root, text="Launch LCE", command=launch_minecraft, width=40, height=3).pack(pady=20)
-
 
 root.mainloop()
